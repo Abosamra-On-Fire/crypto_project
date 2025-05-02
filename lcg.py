@@ -1,11 +1,18 @@
 class LCG:
     def __init__(self, seed, a=1664525, c=1013904223, m=2**32):
+        """
+        parameters:
+        - a: multiplier
+        - c: increment
+        - m: modulus
+        """
         self.seed = seed
         self.a = a 
         self.c = c
         self.m = m
         
     def generate(self, length):
+        """generate keystream of specified length"""
         keystream = bytearray()
         x = self.seed
         for _ in range(length):

@@ -7,6 +7,32 @@ from dh_exchange import DH_exchange
 
 
 def reciever(): 
+    '''
+    Initialization: 
+        Binds socket to port and listens for connection 
+        Accepts sender connection 
+        Initializes DH key exchange as "receiver" role 
+
+    Key Exchange: 
+        Receives DH parameters from sender 
+        Preforms DH key exchange using DH_exchange 
+
+    Authentication & Decryption: 
+        Derives AES (for decryption) and HMAC keys from shared secret 
+        Receives encrypted seed + HMAC tag 
+        Verifies HMAC to ensure integrity 
+        Decrypts seed using AES 
+
+    File Processing: 
+        Initializes stream cipher with decrypted seed 
+        Receives encrypted file chunks 
+        Decrypts each chunk using OTP keystream 
+        Writes decrypted data to output.txt 
+
+    Completion: 
+        Closes connection 
+        Verifies output.txt matches sender's original file 
+    '''
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen()
@@ -14,7 +40,8 @@ def reciever():
         conn, addr = s.accept()
         try:
             with conn:
-                shared_key = DH_exchange(conn, "reciever")
+                dh = DH_exchange(conn, "reciever")
+                shared_key = dh.perform_key_exchange()
                 if not shared_key or not isinstance(shared_key, bytes):
                     raise ValueError("worng shared key from DH exchange")
                 print(f"shared key: {shared_key[:16].hex()}...")

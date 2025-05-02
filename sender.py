@@ -3,13 +3,37 @@ from cryptography.hazmat.primitives.asymmetric import dh
 from common import *
 from stream_cipher import *
 from hmac_module import *
-from dh_exchange import DH_exchange
+from dh_exchange import *
 def sender(): 
+    '''
+    Initialization: 
+        Creates socket connection to receiver 
+        Initializes DH key exchange as "sender" role 
+
+    Key Exchange: 
+        Preforms DH key exchange using DH_exchange 
+
+    Encryption Setup: 
+        Derives AES & HMAC keys from shared secret 
+        Generates random OTP seed 
+        Initializes stream cipher with seed 
+
+    Secure Transmission: 
+        Encrypts seed with AES 
+        Adds HMAC authentication 
+        Sends authenticated seed 
+
+    File Processing: 
+        Encrypts input.txt in 10-byte chunks 
+        Streams encrypted data to receiver 
+        Closes connection after completion 
+    
+    '''
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((HOST, PORT))
         try:
-
-            shared_key = DH_exchange(s, "sender")
+            dh = DH_exchange(s,'sender')
+            shared_key = dh.perform_key_exchange()
             if not shared_key or not isinstance(shared_key, bytes):
                 raise ValueError("wrong shared key from DH exchange")
             print(f"shared secret: {shared_key[:16].hex()}...")

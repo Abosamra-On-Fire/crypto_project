@@ -14,14 +14,16 @@ class HMACAuthenticator:
             raise ValueError(f"Key must be {self.KEY_SIZE} bytes")
 
     def generate(self, message: bytes) -> bytes:
+        """returns HMAC digest"""
         return hmac.new(self.key, message, hashlib.sha256).digest()
 
     def verify(self, message: bytes, received_digest: bytes) -> bool:
+        """Safe comparison"""
         expected_digest = self.generate(message)
         return hmac.compare_digest(expected_digest, received_digest)
     
-    
-def test_hmac_authentication():
+        
+def test_hmac_authentication():# fro testing
     print("\n=== Testing HMAC Authentication ===")
     authenticator = HMACAuthenticator()
     test_message = b"Important data for HMAC verification"

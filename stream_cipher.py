@@ -11,13 +11,16 @@ class StreamCipher:
         self.lcg = LCG(self.seed)
 
     def _generate_seed(self) -> int:
+        """generate a long random seed if not provided"""
         return struct.unpack('Q', os.urandom(32))[0] 
 
     def process_chunk(self, data: bytes) -> bytes:
+        """process data chunk with current LCG state"""
         keystream = self.lcg.generate(len(data))
         return bytes([d ^ k for d, k in zip(data, keystream)])
 
     def process_file(self, input_path: str, output_path: str) -> None:
+        """process file in 10-character chunks"""
         with open(input_path, 'rb') as fin, open(output_path, 'wb') as fout:
             while True:
                 chunk = fin.read(self.CHUNK_SIZE)
@@ -28,10 +31,12 @@ class StreamCipher:
 
     @property
     def seed(self) -> int:
+        """get the seed for synchronization"""
         return self._seed
 
     @seed.setter
     def seed(self, value: int) -> None:
+        """reset cipher with a known seed (for receiver)"""
         self._seed = value
         self.lcg = LCG(value)
 
